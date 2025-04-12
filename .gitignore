@@ -3,6 +3,10 @@
 /workspace.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+mockServiceWorker.js
 
 # Node modules folder
 /node_modules/
+
+# Ignore build folders
+/dist/
