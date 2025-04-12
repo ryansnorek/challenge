@@ -30,7 +30,7 @@ type UseCachingFetch = (url: string) => {
  *
  */
 
-let store: Record<string, any> = {};
+let store: Record<string, string> = {};
 
 export const useCachingFetch: UseCachingFetch = (url) => {
   const [data, setData] = useState(store[url] || null);
@@ -103,9 +103,11 @@ export const preloadCachingFetch = async (url: string): Promise<void> => {
  * 4. This file passes a type-check.
  *
  */
-export const serializeCache = (): string => '';
+export const serializeCache = (): string => JSON.stringify(store);
 
-export const initializeCache = (serializedCache: string): void => {};
+export const initializeCache = (serializedCache: string): void => {
+  store = JSON.parse(serializedCache)
+};
 
 export const wipeCache = (): void => {
   store = {};
