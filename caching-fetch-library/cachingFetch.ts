@@ -30,7 +30,7 @@ type UseCachingFetch = (url: string) => {
  *
  */
 
-const store: Record<string, any> = {};
+let store: Record<string, any> = {};
 
 export const useCachingFetch: UseCachingFetch = (url) => {
   const [data, setData] = useState(store[url] || null);
@@ -78,9 +78,13 @@ export const useCachingFetch: UseCachingFetch = (url) => {
  *
  */
 export const preloadCachingFetch = async (url: string): Promise<void> => {
-  throw new Error(
-    'preloadCachingFetch has not been implemented, please read the instructions in DevTask.md',
-  );
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    store[url] = json;
+  } catch (e) {
+    throw new Error('error preloadCachingFetch');
+  }
 };
 
 /**
@@ -103,4 +107,6 @@ export const serializeCache = (): string => '';
 
 export const initializeCache = (serializedCache: string): void => {};
 
-export const wipeCache = (): void => {};
+export const wipeCache = (): void => {
+  store = {};
+};
