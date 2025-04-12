@@ -3,6 +3,8 @@
 // However, you must not change the surface API presented from this file,
 // and you should not need to change any other files in the project to complete the challenge
 
+import { useEffect, useState } from "react";
+
 type UseCachingFetch = (url: string) => {
   isLoading: boolean;
   data: unknown;
@@ -27,13 +29,37 @@ type UseCachingFetch = (url: string) => {
  * 4. This file passes a type-check.
  *
  */
+
+const store: Record<string, any> = {};
+
 export const useCachingFetch: UseCachingFetch = (url) => {
+  const [data, setData] = useState(store[url] || null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const getData = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        setData(json);
+
+        store[url] = json;
+      } catch (e) {
+        setError(new Error("error useCachingFetch"));
+      }
+      setIsLoading(false);
+    }
+    if (!store[url]) {
+      getData();
+    }
+  }, []);
+
   return {
-    data: null,
-    isLoading: false,
-    error: new Error(
-      'UseCachingFetch has not been implemented, please read the instructions in DevTask.md',
-    ),
+    data,
+    isLoading,
+    error
   };
 };
 
