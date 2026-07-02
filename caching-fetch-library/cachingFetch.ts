@@ -30,7 +30,12 @@ type UseCachingFetch = (url: string) => {
  *
  */
 
-let store: Record<string, string> = {};
+type SerializedCachePayload = {
+  version: 1;
+  entries: Array<[string, unknown]>;
+};
+
+let store: Record<string, unknown> = {};
 
 export const useCachingFetch: UseCachingFetch = (url) => {
   const [data, setData] = useState(store[url] || null);
@@ -103,10 +108,28 @@ export const preloadCachingFetch = async (url: string): Promise<void> => {
  * 4. This file passes a type-check.
  *
  */
-export const serializeCache = (): string => JSON.stringify(store);
+export const serializeCache = (): string => {
+  const payload: SerializedCachePayload = {
+    version: 1,
+    entries: Object.entries(store),
+  };
+
+  return encodeURIComponent(JSON.stringify(payload));
+};
 
 export const initializeCache = (serializedCache: string): void => {
-  store = JSON.parse(serializedCache)
+  const payload = JSON.parse(
+    decodeURIComponent(serializedCache),
+  ) as SerializedCachePayload;
+
+  if (payload.version !== 1) {
+    throw new Error('Unsupported cache payload version');
+  }
+
+  store = {};
+  for (const [url, data] of payload.entries) {
+    store[url] = data;
+  }
 };
 
 export const wipeCache = (): void => {
